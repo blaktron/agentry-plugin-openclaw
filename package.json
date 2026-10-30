@@ -1,0 +1,56 @@
+{
+  "name": "@secureagentry/openclaw-agentry",
+  "version": "0.1.0",
+  "description": "Find, verify, install and run QuickAgents (signed, scanned agent packages with a declared capability contract) and build your own, from your agent host.",
+  "type": "module",
+  "license": "MIT",
+  "homepage": "https://docs.secureagentry.net/agentry/mcp/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blaktron/agentry-plugin-openclaw.git"
+  },
+  "bugs": {
+    "url": "https://github.com/blaktron/agentry-plugin-openclaw/issues"
+  },
+  "keywords": [
+    "openclaw",
+    "openclaw-plugin",
+    "agentry",
+    "quickagents",
+    "agents",
+    "mcp",
+    "skills",
+    "sandbox",
+    "supply-chain",
+    "security"
+  ],
+  "files": [
+    "openclaw.plugin.json",
+    "index.mjs",
+    "gate.mjs",
+    "skills",
+    "server",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "peerDependencies": {
+    "openclaw": ">=2026.10.1"
+  },
+  "openclaw": {
+    "extensions": [
+      "./index.mjs"
+    ],
+    "runtimeExtensions": [
+      "./index.mjs"
+    ],
+    "compat": {
+      "pluginApi": ">=2026.10.1",
+      "minGatewayVersion": "2026.10.1"
+    },
+    "build": {
+      "openclawVersion": "2026.10.9",
+      "pluginSdkVersion": "2026.10.9"
+    }
+  }
+}

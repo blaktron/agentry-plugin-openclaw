@@ -1,0 +1,35 @@
+{
+  "id": "agentry",
+  "name": "Agentry",
+  "description": "Find, verify, install and run QuickAgents (signed, scanned agent packages with a declared capability contract) and build your own, from your agent host.",
+  "version": "0.1.0",
+  "categories": [
+    "developer-tools"
+  ],
+  "skills": [
+    "./skills"
+  ],
+  "mcpServers": {
+    "agentry": {
+      "transport": "stdio",
+      "command": "node",
+      "args": [
+        "./server/agentry-mcp.mjs"
+      ]
+    }
+  },
+  "activation": {
+    "onStartup": true
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "allowNonOwners": {
+        "type": "boolean",
+        "default": false,
+        "description": "Let channel senders who are not the gateway owner use Agentry. They act with the owner's Agentry sign-in."
+      }
+    }
+  }
+}
