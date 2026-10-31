@@ -13,9 +13,9 @@ identifies signed bytes; it does not judge their contents.
 
 ## Set up the Agentry CLI
 
-This plugin already carries the Agentry MCP server (version 0.6.999) and
+This plugin already carries the Agentry MCP server (version 0.6.1002) and
 starts it for you. What it needs from the machine is the Agentry CLI, version
-0.6.63 or newer, and Node 20 or newer. Local runs also need Docker.
+0.6.63 or newer, and Node 24 or newer. Local runs also need Docker.
 
 If the `agentry_*` tools are missing, the server could not start: almost
 always because the CLI is not installed, is older than 0.6.63, or is not on

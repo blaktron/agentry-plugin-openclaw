@@ -12,7 +12,7 @@ openclaw plugins enable agentry
 ## Requirements
 
 - The Agentry CLI 0.6.63 or newer on the gateway's `PATH`. Install it from https://secureagentry.net/download.
-- Node 20 or newer.
+- Node 24 or newer.
 - Docker on the gateway host, for runs on that computer.
 
 ## How it behaves on a shared gateway

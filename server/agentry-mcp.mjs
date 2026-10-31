@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Agentry MCP server 0.6.999, bundled from the signed release agentry-mcp-0.6.999.tar.gz
-// (sha256 25da90fe31e0928d3761c761092794dfad857d45b84203c647762c8e532dc8f8). Third-party licences: THIRD-PARTY-NOTICES.md.
+// Agentry MCP server 0.6.1002, bundled from the signed release agentry-mcp-0.6.1002.tar.gz
+// (sha256 887bd9a1dbebd6d7c20b4211c1101b903b42c030f5855716b04d804061c3df80). Third-party licences: THIRD-PARTY-NOTICES.md.
 import { createRequire as __agentryCreateRequire } from "node:module";
 const require = __agentryCreateRequire(import.meta.url);
 var __create = Object.create;
@@ -10,7 +10,11 @@ var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __commonJS = (cb, mod) => function __require() {
-  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  try {
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  } catch (e) {
+    throw mod = 0, e;
+  }
 };
 var __export = (target2, all) => {
   for (var name2 in all)
@@ -20201,8 +20205,8 @@ function registry() {
 var globalRegistry = globalThis.__zod_globalRegistry;
 
 // node_modules/zod/v4/core/compile.js
-var INVALID = Symbol.for("zod.compile.invalid");
-var FALLBACK_FLAG = Symbol.for("zod.compile.fallback");
+var INVALID = /* @__PURE__ */ Symbol.for("zod.compile.invalid");
+var FALLBACK_FLAG = /* @__PURE__ */ Symbol.for("zod.compile.fallback");
 var ZodCompileAsyncError = class extends Error {
   constructor(message = "z.compile does not support async refinements, transforms, or checks") {
     super(message);
@@ -23990,7 +23994,7 @@ var nonoptionalProcessor = (schema, ctx, _json, params) => {
   const seen = ctx.seen.get(schema);
   seen.ref = def2.innerType;
 };
-var UNREPRESENTABLE_DEFAULT = Symbol();
+var UNREPRESENTABLE_DEFAULT = /* @__PURE__ */ Symbol();
 function serializeDefaultValue(value2, schema, ctx, json2, params) {
   let unrepresentable = false;
   const serialized = JSON.stringify(value2, (_, val) => {
@@ -26754,7 +26758,7 @@ function fromJSONSchema(schema, params) {
 }
 
 // node_modules/zod/v4/core/visit.js
-var RESOLVING = Symbol("z.visit/resolving");
+var RESOLVING = /* @__PURE__ */ Symbol("z.visit/resolving");
 function visit(schema, fnOrHandlers) {
   const fn = typeof fnOrHandlers === "function" ? fnOrHandlers : (node2, rewritten) => {
     const h = fnOrHandlers[node2._zod.def.type];
@@ -32516,7 +32520,6 @@ ZodNaN2.create = (params) => {
     ...processCreateParams(params)
   });
 };
-var BRAND = Symbol("zod_brand");
 var ZodBranded = class extends ZodType2 {
   _parse(input2) {
     const { ctx } = this._processInputParams(input2);
@@ -32917,7 +32920,7 @@ function isTerminal(status) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/Options.js
-var ignoreOverride = Symbol("Let zodToJsonSchema decide on which parser to use");
+var ignoreOverride = /* @__PURE__ */ Symbol("Let zodToJsonSchema decide on which parser to use");
 var defaultOptions = {
   name: void 0,
   $refStrategy: "root",
@@ -35907,7 +35910,7 @@ var Server = class extends Protocol {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
-var COMPLETABLE_SYMBOL = Symbol.for("mcp.completable");
+var COMPLETABLE_SYMBOL = /* @__PURE__ */ Symbol.for("mcp.completable");
 function isCompletable(schema) {
   return !!schema && typeof schema === "object" && COMPLETABLE_SYMBOL in schema;
 }
@@ -37693,7 +37696,7 @@ function containerFor(schema, kind) {
   const matching = (d.options ?? []).filter((o) => kinds(o).has(kind));
   return matching.length === 1 ? containerFor(matching[0], kind) : void 0;
 }
-var NOT_JSON = Symbol("not JSON");
+var NOT_JSON = /* @__PURE__ */ Symbol("not JSON");
 function parseJson(text) {
   try {
     return JSON.parse(text);
@@ -38074,6 +38077,9 @@ function progressSink(extra) {
   };
 }
 async function setup(d, a, extra) {
+  if (a.provider === "agentry" && (a.apiKeyEnv || a.baseUrl || a.model)) {
+    throw new ArgumentError("provider agentry pays with your Agentry credits through the registry the CLI is signed in to: give no apiKeyEnv, baseUrl or model");
+  }
   const argv = ["setup", "--json"];
   flag(argv, "provider", a.provider);
   flag(argv, "model", a.model);
@@ -38840,8 +38846,18 @@ function registerRunTools(d) {
   registerTool(d.server, "agentry_setup", {
     description: "Prepare this machine for QuickAgent runs with the installed agentry CLI (`agentry setup --json`): write the model provider into the runner policy (~/.agentry/runner/policy.yaml) \u2014 provider, model, the NAME of the environment variable holding the key, never the key \u2014 and, unless skipImages, pull and build the gateway, harness and runner images (minutes; progress is streamed when the host asks for it). Returns the policy as configured and whether the images are ready. Call agentry_doctor first to see what is missing.",
     inputSchema: {
-      provider: external_exports.enum(["anthropic", "openai", "google", "custom"]).optional().describe("The model provider; the policy's current one when omitted."),
-      model: external_exports.string().optional().describe("The model name; the provider's default when omitted."),
+      provider: external_exports.enum([
+        "anthropic",
+        "openai",
+        "google",
+        "vultr",
+        "openrouter",
+        "poe",
+        "huggingface",
+        "agentry",
+        "custom"
+      ]).optional().describe("The model provider; the policy's current one when omitted. vultr is Vultr Serverless Inference (key variable VULTR_INFERENCE_API_KEY by default; needs CLI v0.6.1000 or later); openrouter, poe and huggingface default to OPENROUTER_API_KEY, POE_API_KEY and HF_TOKEN. Each is paid by a key variable here; signing in with the provider's own account (Connect your account) is done in a terminal (`agentry setup`) or the desktop, never through this tool. agentry pays with the Agentry credits of the account the CLI is signed in to (`agentry login`, in a terminal) and takes no apiKeyEnv, baseUrl or model: each run opens a credits session with that sign-in, and the registry picks the model (needs CLI v0.6.1005 or later)."),
+      model: external_exports.string().optional().describe("The model name; the provider's default when omitted. vultr, openrouter, poe and huggingface have no default: name one. agentry takes none."),
       apiKeyEnv: external_exports.string().optional().describe("The NAME of the environment variable the runner reads the key from (e.g. ANTHROPIC_API_KEY). Never a key."),
       baseUrl: external_exports.string().optional().describe("For a custom provider: the endpoint's base URL, which sets the agent container's only egress."),
       skipImages: external_exports.boolean().optional().describe("Write the policy only; skip the image pulls and build."),
@@ -39515,7 +39531,7 @@ function registerWriteTools(d) {
 
 // dist/server.js
 var SERVER_NAME = "agentry-mcp";
-var SERVER_VERSION = "0.6.999";
+var SERVER_VERSION = "0.6.1002";
 function instructions(bin, cliVersion) {
   return [
     `This server drives the agentry CLI installed on this machine (${bin}, agentry ${cliVersion}) so you can search a registry, read a QuickAgent's capability contract, verify a release and check the machine. Every tool is one CLI command; every result is the CLI's own JSON in an envelope with the exit class and the CLI's log.`,
