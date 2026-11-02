@@ -2,7 +2,7 @@
   "id": "agentry",
   "name": "Agentry",
   "description": "Find, verify, install and run QuickAgents (signed, scanned agent packages with a declared capability contract) and build your own, from your agent host.",
-  "version": "0.1.0",
+  "version": "0.7.0",
   "categories": [
     "developer-tools"
   ],

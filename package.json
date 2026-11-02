@@ -1,6 +1,6 @@
 {
   "name": "@secureagentry/openclaw-agentry",
-  "version": "0.1.0",
+  "version": "0.7.0",
   "description": "Find, verify, install and run QuickAgents (signed, scanned agent packages with a declared capability contract) and build your own, from your agent host.",
   "type": "module",
   "license": "MIT",

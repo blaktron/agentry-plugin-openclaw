@@ -1,12 +1,12 @@
 {
   "server": "agentry-mcp",
-  "version": "0.6.1002",
-  "release": "https://github.com/blaktron/agentry-mcp/releases/download/v0.6.1002/agentry-mcp-0.6.1002.tar.gz",
-  "tarballSha256": "887bd9a1dbebd6d7c20b4211c1101b903b42c030f5855716b04d804061c3df80",
-  "sourceCommit": "0a2638bb605e334d0e769581d74db246c00a9ee4",
+  "version": "0.7.0",
+  "release": "https://github.com/blaktron/agentry-mcp/releases/download/v0.7.0/agentry-mcp-0.7.0.tar.gz",
+  "tarballSha256": "98f4eedecbd91dc230e3f35ab681bb6acd80c4559b63749c398738726d12b1ce",
+  "sourceCommit": "e51b684e406c65a03e04c2a8958cd5e4762c5616",
   "signedBy": "F859BAEC0B0AD025",
   "bundler": "esbuild 0.28.2",
-  "bundleSha256": "da0d68555cd9e8cad902dfd99b16a4daefbe504072f468a57a5210e77c0c7ebf",
+  "bundleSha256": "8d98f4805a4119cea195a1757e748d990402829617ad8a3c3972df6a8d435e80",
   "minCli": "0.6.63",
   "node": ">=24",
   "packages": [
