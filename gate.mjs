@@ -37,12 +37,13 @@ export function approvalFor(hostToolName, params = {}) {
   const tool = agentryTool(hostToolName);
   if (!tool) return null;
   const confirming = typeof params.confirm === "string" && params.confirm.length > 0;
-  const tasksChange = tool === "agentry_agent_tasks" && typeof params.action === "string" && params.action !== "list";
+  // agentry_agent_tasks lists without `op` and pauses or resumes with it.
+  const tasksChange = tool === "agentry_agent_tasks" && typeof params.op === "string" && params.op.length > 0;
   if (!confirming && !UNPREVIEWED_WRITES.has(tool) && !tasksChange) return null;
 
   const verb = tool.replace(/^agentry_/, "").replace(/_/g, " ");
   const facts = [];
-  for (const key of ["ref", "name", "dir", "path", "target", "provider", "action", "task"]) {
+  for (const key of ["ref", "name", "dir", "path", "target", "provider", "action", "task", "op"]) {
     if (typeof params[key] === "string" && params[key]) facts.push(`${key}: ${clip(params[key], 80)}`);
   }
   if (typeof params.input === "string" && params.input) facts.push(`task: ${clip(params.input, 120)}`);

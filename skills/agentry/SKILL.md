@@ -42,6 +42,18 @@ path in the plugin's settings. Then restart the host so it starts the server
 again. Never download a different MCP server or edit the host's MCP
 configuration to work around a failed start: the plugin owns that entry.
 
+Some hosts start the server with only the environment variables they are
+told to pass, so a key set in the person's shell can be missing from a run:
+`agentry_doctor` or a refused run names the variable. Where a host passes
+only named variables, the plugin names the ones the CLI reads keys from by
+default: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `OPENROUTER_API_KEY`, `POE_API_KEY`, `HF_TOKEN`, `VULTR_INFERENCE_API_KEY`, `TYPESAFE_API_KEY`, `YDC_API_KEY`. For a key in
+any other variable, tell the person to keep it where the CLI finds it without
+the environment: the model key in the OS keychain (`agentry setup
+--api-key-source keyring` in a terminal), a QuickAgent's own secrets in its
+profile (one run with `agentry run` in a terminal, keeping the profile its
+guided setup offers), and a target host's sign-in in the OS keychain (the
+first terminal run offers to save it). Never ask for a key in the chat.
+
 Signing in is the person's step, in their own terminal:
 `agentry login` (add `--registry <REGISTRY_URL>` for a registry other than
 the default). The browser opens on the same computer and the CLI keeps the
