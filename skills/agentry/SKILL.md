@@ -13,7 +13,7 @@ identifies signed bytes; it does not judge their contents.
 
 ## Set up the Agentry CLI
 
-This plugin already carries the Agentry MCP server (version 0.7.0) and
+This plugin already carries the Agentry MCP server (version 0.7.16) and
 starts it for you. What it needs from the machine is the Agentry CLI, version
 0.6.63 or newer, and Node 24 or newer. Local runs also need Docker.
 
@@ -148,18 +148,56 @@ To run on one, pass its name as `agentry_run`'s `on`. Use it only when the
 person asked for that runhost by name or chose it. The preview's `summary`
 says where the run goes, and its `readiness` is the runhost's own doctor;
 show both. A run on a runhost takes everything a run on this computer
-takes, `files`, `knowledge`, the voice, `intake`, `reportTheme`, `deliverTo`
+takes, `files`, `knowledge`, the voice, `intake`, `reportTheme` or `reportDesign`, `deliverTo`
 and `destinations` among them: this computer gathers the secrets and the
 intake answers and sends them, with the files, for that run alone, and the
-runhost deletes them when the run ends. It does not take a release with
-target hosts, the target-host sign-ins, a destination on the person's own
-network, or a model sign-in or Agentry credits yet; for those, run on this
-computer.
+runhost deletes them when the run ends. A target host is reached from the
+runhost, with the sign-in this computer has, and only when this computer
+already knows the host's key (its known_hosts); otherwise the run is refused
+and the person runs once on this computer first. A run whose model is Agentry
+credits pays with the runhost's own credits token (CLI v0.7.3 or later). If
+the runhost has none, the run is refused: tell the person to run `agentry
+runhost model <name> --provider agentry` in a terminal, which asks them to
+approve the token in their browser. A run whose model is a Claude, ChatGPT or
+Copilot plan uses the runhost's own sign-in (CLI v0.7.6 or later); if the
+runhost has none, the run is refused: tell the person to run `agentry runhost
+model <name> --sign-in claude`, `chatgpt` or `copilot` in a terminal, which
+signs the runhost in from their browser. `adapter` may go with `on` then:
+`claude` and `codex` run on the runhost as their images. It does not take a
+destination on the person's own network yet; for that, run on this computer.
 
-Never try to set a runhost up, remove one, pair a device or change its
-settings: those take an administrator's sign-in to the person's server and
-stay in a terminal (`agentry runhost add`, `agentry runhost remove`). Tell
-the person the command to run themselves.
+`agentry_session_start` takes `on` too: the session runs on the runhost and is
+driven from here with `agentry_session_send`, `agentry_session_add` and
+`agentry_session_close` as a session here is. If the connection drops, the
+session stays on the runhost until its idle timeout. A run that loses its
+connection goes on on the runhost; the person follows it again in a terminal
+with `agentry runhost attach <name> <job>`, and `agentry runhost jobs <name>`
+lists what is there.
+
+A persistent agent may run on a runhost too (CLI v0.7.14 or later): pass `on`
+to `agentry_agent_list`, `agentry_agent_show`, `agentry_agent_start`,
+`agentry_agent_stop`, `agentry_agent_send` and `agentry_agent_tasks`, and
+`runhost` to `agentry_agent_grant` (whose `on` is the switch), when the person
+named that runhost or the agent runs there. Its model is the runhost's own: if a
+start says the runhost has none, tell the person to run `agentry runhost model
+<name> --provider <provider>` in a terminal. Storing the agent's secret or git
+host account on the runhost (`agentry agent secret set … --on`, `agentry agent
+configure … --account … --on`) also stays in a terminal.
+
+Never try to set a runhost up, remove one, pair or unpair a computer, update
+its CLI or change its settings, or give it or take away its credits token:
+those take an administrator's sign-in to the person's server, the person's own
+approval in their browser, or a change to their server only they decide on,
+and stay in a terminal (`agentry runhost add`, `agentry runhost remove`,
+`agentry runhost pair`, `agentry runhost unpair`, `agentry runhost update`,
+`agentry runhost model`, `agentry runhost store`), and never make a schedule on
+one (`agentry schedule add --on`): its consent names everything the runhost's
+store will keep. Tell the person the command to run themselves.
+`agentry_schedule_list` with `on` lists a runhost's schedules and their runs'
+jobs (CLI v0.7.11 or later). A run refused because the runhost's CLI is another version
+than this computer's names both versions: tell the person to run `agentry
+runhost update <name>`, or to update this computer's CLI when the runhost's is
+the newer one.
 
 ## Long runs: cancel and detach
 
@@ -190,14 +228,24 @@ The run preview's `delivery` names where the run sends its result: a folder
 and saved destinations, the call's `destinations` or else the default set the
 person saved for that QuickAgent. Show it with the contract; pass
 `noDestination` when the person wants none. Use `agentry_destinations_list` to
-see what is saved. `reportTheme` picks a built-in theme for the run's PDFs
-(`agentry_report_design_show` says what a run takes now). Pass an input
+see what is saved. `reportTheme` picks a built-in theme for the run's PDFs,
+and `reportDesign` a design of the person's library by name or id, or a file
+(`agentry_report_design_list` lists the library, `agentry_report_design_show`
+says what a run takes now; CLI v0.7.22 or later for the library). Pass an input
 source's token or a target host's password only as the NAME of an environment
 variable the person set (`intakeTokens`, `hostPasswords`, `hostPassphrases`,
 `hostSudoPasswords`), and a host key as a file path (`hostKeys`); without them
 the CLI uses the sign-ins saved in the system keychain. Use only variable
 names the person gave you, and show the preview's `signIns`: each variable's
-value goes to the source or host named beside it. `agentry_deliver`
+value goes to the source or host named beside it. A release that uses an
+application on the person's computer (Blender, Unreal Engine) needs
+`desktop`: show the preview's line, then pass `applications` with each id it
+names and `computerUse: true` if it does computer use, only once the person
+agrees, and `allowScreen` only when they agreed to their whole screen. Agentry
+Desktop must be running on their computer; it asks them before code runs and
+they can stop it at any time. Never start Agentry Desktop, open an application
+or change Settings → Your computer for them: those stay in the app.
+`agentry_deliver`
 copies or sends a run already made again, previewed and confirmed like a run.
 
 `agentry_schedule_list`, `agentry_connections_list` and
@@ -218,19 +266,64 @@ The CLI's pipe protocol is unavailable on Windows; use a terminal session there.
 ## Persistent agents
 
 The Assistant and the Coding agent run in the background once started and
-keep their conversation. Main runs only in Agentry Desktop. Read them with
-`agentry_agent_list` and `agentry_agent_show`. `agentry_agent_start` starts at
+keep their conversation, and so do the persistent QuickAgents installed from a
+registry. Main runs only in Agentry Desktop. Read them with
+`agentry_agent_list` and `agentry_agent_show`. Name an agent by its short name
+(`assistant`, `coder`) or, for a registry agent, its `ns/name`; `show` returns
+its reference, version, persona, packs and subagent pins, and with CLI v0.7.8
+or later `subagentRuns`, the runs it started of its subagents, newest first,
+each with its outcome and the run's own id.
+
+`agentry_agent_install` (CLI v0.7.4 or later) adds a persistent QuickAgent from
+a registry in two calls, and with CLI v0.7.8 or later updates one already
+installed. Its preview lists what the agent may do beyond a run
+(`persistent`: clock, memory, skills, stored secrets, mail, the coding
+toolchain, web, helper tools and the rest), the knowledge it ships, each
+subagent with the reason it gives, the persona of that version and the
+attestation verdict. With CLI v0.7.8 or later it also gives each subagent's pin
+(the version, what it reaches and its digest, or why it resolves to none) and,
+for an update, `installedAgent` and the widening in `diff`. Show the person all
+of it, say that a subagent runs as a QuickAgent of its own under its own
+contract, and confirm with the digest only once they agree; a pin that moved in
+between is refused. A new install is left stopped (`agentry_agent_start`). An
+unsigned or unscanned release is refused. With CLI v0.7.19 or later a running
+agent takes an update at its next turn, its conversation continuing, so the
+person need not stop it; an older CLI refuses the update of a running agent.
+With a CLI older than v0.7.8, the result names the pins and updating stays in a
+terminal.
+`agentry_agent_uninstall` is two calls too, and keeps the agent's conversation
+and files unless `removeData` is set; wiping them cannot be undone, so the
+confirm also needs `confirmRef`, the agent's reference as the preview names it,
+and only after the person agreed to the wipe. With CLI v0.7.19 or later it stops
+a running agent first, and the preview says so; an older CLI refuses it until
+the agent is stopped. A subagent is a roster entry
+(`subagent:<ns>/<name>`, and its `:ask` switch, which asks the person before
+each run): `agentry_agent_grant` switches either.
+
+A question the agent asks the person while you send it a turn (a run of a
+subagent they asked to be asked about, an install or a first run it wants) is
+theirs to answer. The server asks them through the host and sends what they
+say; when the host cannot ask, the send returns `awaitingPerson` with the
+question: tell the person, and never answer for them. `agentry_agent_start` starts at
 once when there is nothing new to agree to; otherwise it returns
 `needsAgreement` and a digest. Show the person every line and confirm only once
 they agree. `agentry_agent_grant` switches a roster entry (`share`,
 `knowledge:<pack>`, `server:<id>` and an offered server's `server:<id>:writes`,
 `skill:<name>`, `secret:<NAME>`, the Assistant's `heartbeat`, `meetings` and `calendar:<name>` (a calendar feed, CLI v0.6.205 or later),
+an agent's applications on the person's computer `desktop:<id>`, their code
+agreement `desktop:<id>:exec` and computer use `desktop:computer` (CLI v0.7.34
+or later),
 and the Coding agent's `account:<host>`, `commands`, `egress`, `browser`,
 `dependency-scan`, `devhost` and `port:<name>`) in the same two calls, always.
 Show the entry's sentence, and say that a running agent restarts with the
-change at its next turn; the Assistant's `heartbeat` and `meetings` take
+change at its next turn. For `desktop:<id>`, say the agent then uses that
+application on the person's own computer through Agentry Desktop; for
+`desktop:<id>:exec`, that its code runs inside the application without
+Agentry Desktop asking each time. Settings → Your computer and the system's
+permissions stay in Agentry Desktop; the Assistant's `heartbeat` and `meetings` take
 effect at once and restart nothing. An entry that reads `needs-set-up` waits for a secret, an account or a
-sign-in the person gives in a terminal or the desktop. The Assistant's mail
+sign-in the person gives in a terminal or the desktop; none of those needs the
+agent stopped with CLI v0.7.19 or later, which takes each at its next turn. The Assistant's mail
 servers (Google Workspace, `server:gog`; Microsoft 365 and Outlook.com, `server:ms365`; Fastmail, `server:url-api-fastmail-com-mcp`) are on its roster only while their mail
 provider is enabled; a grant of one that is not names the command the person
 runs.
@@ -306,10 +399,22 @@ tool error carrying the CLI's envelope.
   optional samples. Each page is read by AI Review with the person's TypeSafe
   key first; without the key the CLI refuses the addresses, and files still
   work. This changes the local voice unless `write` names a VOICE.md file.
+- `agentry_report_design_build`: `job: design` writes a report design from a
+  `brief` (optionally `from` a design, a `logo`, up to 4 reference `images`, up
+  to 2 https `urls`); `job: cover` writes a custom cover page for `design`
+  (with `images` it may draw). `job: design` also takes one `document`, a PDF
+  or `.docx` up to 20 MB, to build the design around (CLI 0.7.26 or later);
+  tell the person it is read in full and kept only for the run, and that the
+  design may keep its logo and its cover page's artwork (CLI 0.7.29 or later),
+  never a whole page or its text. Show the person the preview: the files it reads,
+  the addresses fetched and read by AI Review with their TypeSafe key. The design
+  lands under `out` in `design/design.json`; nothing is added to the account.
+  Adding it (`--save`, `agentry report-design import`), `use` and `delete` are
+  terminal-only. Needs CLI 0.7.23 or later.
 
 Terminal-only workflows include signing in to MCP servers (`agentry connect`)
 and model vendors (`agentry model-signins add`), adding or changing schedules,
-saving destinations and default sets, importing or resetting the report design,
+saving destinations and default sets, adding (`--save`, `agentry report-design import`), replacing, picking the default (`use`) or deleting a report design,
 forking, publishing/yanking, shipping a Knowledge pack with a QuickAgent
 (`agentry knowledge ship`, `agentry draft --ship`, the per-pack confirmation
 `agentry publish` asks), registry administration,
